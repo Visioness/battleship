@@ -3,14 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Title</title>
+    <title>Battleship</title>
   </head>
   <body>
     <header>
-      <h1>Project Title</h1>
+      <h1>Battleship</h1>
     </header>
 
-    <main></main>
+    <main>
+      <form id="game-type-form">
+        <fieldset>
+          <legend>Game Type</legend>
+          <label for="single">Against Computer</label>
+          <input type="radio" name="game-type" id="single" value="single" checked />
+          <label for="multi">Two Players</label>
+          <input type="radio" name="game-type" id="multi" value="multi" />
+        </fieldset>
+        <button type="submit">Next</button>
+      </form>
+
+      <form class="hidden" id="board-size-form">
+        <fieldset>
+          <legend>Board Size</legend>
+          <label for="board-size">Board Size</label>
+          <input type="number" name="board-size" id="board-size" value="10" min="7" max="15" />
+        </fieldset>
+        <button type="submit">Next</button>
+      </form>
+
+      <form class="hidden" id="player-names-form">
+        <fieldset>
+          <legend>Player Names</legend>
+          <label for="player-one-name">Player One</label>
+          <input type="text" name="player-one-name" id="player-one-name" />
+          <label for="player-two-name">Player Two</label>
+          <input type="text" name="player-two-name" id="player-two-name" />
+        </fieldset>
+        <button type="submit">Start Game</button>
+      </form>
+
+      <div class="fleet-container hidden"></div>
+
+      <div class="game-container hidden" id="game-container">
+        <div class="player" id="player-one">
+          <h3 class="player-name">Player One</h3>
+          <div class="game-board"></div>
+        </div>
+        <div class="player" id="player-two">
+          <h3 class="player-name">Player Two</h3>
+          <div class="game-board"></div>
+        </div>
+      </div>
+    </main>
 
     <footer>
       <span>

@@ -1,3 +1,12 @@
+:root {
+  --primary-color: #272755;
+  --secondary-color: #0a0a14;
+
+  --text-color: #ccc;
+  --high-transparent: #ffffff09;
+  --low-transparent: #ffffff34;
+}
+
 *,
 *::before,
 *::after {
@@ -6,6 +15,105 @@
   box-sizing: border-box;
 }
 
+a {
+  color: var(--text-color);
+  font-weight: bold;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
 body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   height: 100vh;
+  text-align: center;
+  color: var(--text-color);
+  background: var(--primary-color);
+  background: radial-gradient(circle, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+header,
+footer {
+  width: 100%;
+  padding: 1rem;
+}
+
+main {
+  position: relative;
+  height: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-board {
+  border: 2px solid var(--text-color);
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--high-transparent);
+  background: var(--primary-color);
+}
+
+.cell:hover {
+  background: var(--high-transparent);
+}
+
+.fleet-container {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+  border: 2px solid var(--low-transparent);
+  border-radius: 0.5rem;
+}
+
+.fleet-item {
+  position: relative;
+}
+
+.fleet-item-name {
+  position: absolute;
+  bottom: -0.3rem;
+  left: 0;
+  right: 0;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.fleet-item > img {
+  min-width: 120px;
+  min-height: 50px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--low-transparent);
+}
+
+.hidden {
+  display: none;
 }
