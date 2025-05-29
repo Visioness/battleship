@@ -49,11 +49,15 @@ class Board {
   }
 
   receiveAttack(row, column) {
-    if (row < 0 || row >= this.size || column < 0 || column >= this.size) {
-      throw Error('You can not attack outside the board!');
+    if (
+      row < 0 ||
+      row >= this.size ||
+      column < 0 ||
+      column >= this.size ||
+      this.isAttackedBefore(row, column)
+    ) {
+      return false;
     }
-
-    if (this.isAttackedBefore(row, column)) throw Error('You can not attack the same spot!');
 
     if (this.grid[row][column]) {
       this.attacks.hit.add(`${row},${column}`);
