@@ -1,5 +1,5 @@
-const Ship = require('./../modules/ship');
-const Board = require('./../modules/board');
+const Ship = require('../modules/ship');
+const Board = require('../modules/board');
 
 describe('Board', () => {
   test('should be initialized with a size', () => {
@@ -99,9 +99,9 @@ describe('Board', () => {
       const ship = new Ship('Carrier');
       board.placeShip(ship, 0, 0, 'horizontal');
       board.receiveAttack(0, 0);
-      expect(() => board.receiveAttack(0, -1)).toThrow('You can not attack outside the board!');
-      expect(() => board.receiveAttack(10, 0)).toThrow('You can not attack outside the board!');
-      expect(() => board.receiveAttack(0, 10)).toThrow('You can not attack outside the board!');
+      expect(board.receiveAttack(0, -1)).toBe(false);
+      expect(board.receiveAttack(10, 0)).toBe(false);
+      expect(board.receiveAttack(0, 10)).toBe(false);
     });
 
     test('prevents attacking the same spot twice', () => {
@@ -109,7 +109,7 @@ describe('Board', () => {
       const ship = new Ship('Carrier');
       board.placeShip(ship, 0, 0, 'horizontal');
       board.receiveAttack(0, 0);
-      expect(() => board.receiveAttack(0, 0)).toThrow('You can not attack the same spot!');
+      expect(board.receiveAttack(0, 0)).toBe(false);
     });
   });
 

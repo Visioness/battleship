@@ -1,4 +1,4 @@
-const Ship = require('./../modules/ship');
+const Ship = require('../modules/ship');
 
 describe('Ship', () => {
   test('should be initialized with a name', () => {
