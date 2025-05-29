@@ -9,8 +9,21 @@ class Game {
     this.currentPlayer = null;
   }
 
-  setPlayer(name) {
-    this.players.push(new Player(name, this.createFleet(), this.createBoard()));
+  setup(playerOneName, playerTwoName) {
+    this.setPlayer(playerOneName, this.boardSize);
+    this.setPlayer(playerTwoName, this.boardSize);
+  }
+
+  setGameType(gameType) {
+    this.againstAI = gameType === 'single' ? true : false;
+  }
+
+  setPlayer(name, boardSize) {
+    this.players.push(new Player(name, this.createFleet(), this.createBoard(boardSize)));
+  }
+
+  setBoardSize(boardSize) {
+    this.boardSize = boardSize;
   }
 
   createFleet() {
@@ -23,8 +36,8 @@ class Game {
     ];
   }
 
-  createBoard(size) {
-    return new Board(size);
+  createBoard() {
+    return new Board(this.boardSize);
   }
 
   turn() {
