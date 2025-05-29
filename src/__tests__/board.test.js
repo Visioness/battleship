@@ -1,3 +1,4 @@
+const Ship = require('./../modules/ship');
 const Board = require('./../modules/board');
 
 describe('Board', () => {
@@ -11,29 +12,30 @@ describe('Board', () => {
       const board = new Board(10);
       const ship = new Ship('Carrier');
       board.placeShip(ship, 0, 0, 'horizontal');
-      expect(board.grid[0][0]).toBe('Carrier');
-      expect(board.grid[0][1]).toBe('Carrier');
-      expect(board.grid[0][2]).toBe('Carrier');
-      expect(board.grid[0][3]).toBe('Carrier');
-      expect(board.grid[0][4]).toBe('Carrier');
+      expect(board.grid[0][0].name).toBe('Carrier');
+      expect(board.grid[0][1].name).toBe('Carrier');
+      expect(board.grid[0][2].name).toBe('Carrier');
+      expect(board.grid[0][3].name).toBe('Carrier');
+      expect(board.grid[0][4].name).toBe('Carrier');
+      expect(board.grid[1][0]).toBe(null);
 
       const ship2 = new Ship('Battleship');
       board.placeShip(ship2, 3, 4, 'vertical');
-      expect(board.grid[3][4]).toBe('Battleship');
-      expect(board.grid[4][4]).toBe('Battleship');
-      expect(board.grid[5][4]).toBe('Battleship');
-      expect(board.grid[6][4]).toBe('Battleship');
+      expect(board.grid[3][4].name).toBe('Battleship');
+      expect(board.grid[4][4].name).toBe('Battleship');
+      expect(board.grid[5][4].name).toBe('Battleship');
+      expect(board.grid[6][4].name).toBe('Battleship');
     });
 
     test('should not be able to place a ship outside the board', () => {
       const board = new Board(5);
-      const ship = new Ship('Carrier');
+      const ship = new Ship('Patrol Boat');
       expect(board.placeShip(ship, 0, 0, 'horizontal')).toBe(true);
-      expect(board.placeShip(ship, 0, 0, 'vertical')).toBe(true);
+      expect(board.placeShip(ship, 2, 3, 'vertical')).toBe(true);
 
       const ship2 = new Ship('Battleship');
-      expect(board.placeShip(ship2, 3, 4, 'horizontal')).toBe(false);
-      expect(board.placeShip(ship2, 3, 4, 'vertical')).toBe(false);
+      expect(board.placeShip(ship2, 0, 4, 'horizontal')).toBe(false);
+      expect(board.placeShip(ship2, 3, 3, 'vertical')).toBe(false);
 
       const ship3 = new Ship('Destroyer');
       expect(board.placeShip(ship3, -5, 0, 'horizontal')).toBe(false);
@@ -60,10 +62,11 @@ describe('Board', () => {
       expect(board.receiveAttack(0, 3)).toBe(ship);
       expect(board.receiveAttack(0, 4)).toBe(ship);
       expect(ship.isSunk()).toBe(true);
+      expect(board.receiveAttack(1, 0)).toBe('miss');
+      expect(board.receiveAttack(2, 0)).toBe('miss');
       expect(board.receiveAttack(0, 5)).toBe('miss');
       expect(board.receiveAttack(0, 6)).toBe('miss');
       expect(board.receiveAttack(0, 7)).toBe('miss');
-      expect(board.receiveAttack(0, 8)).toBe('miss');
 
       const ship2 = new Ship('Battleship');
       board.placeShip(ship2, 3, 4, 'vertical');
@@ -86,8 +89,8 @@ describe('Board', () => {
       board.receiveAttack(7, 2);
       board.receiveAttack(4, 1);
       expect(board.attacks).toMatchObject({
-        hit: ['0,0', '0,1'],
-        miss: ['3,6', '7,2', '4,1'],
+        hit: new Set(['0,0', '0,1']),
+        miss: new Set(['3,6', '7,2', '4,1']),
       });
     });
 
@@ -96,9 +99,9 @@ describe('Board', () => {
       const ship = new Ship('Carrier');
       board.placeShip(ship, 0, 0, 'horizontal');
       board.receiveAttack(0, 0);
-      expect(board.receiveAttack(0, -1)).toThrow('Attack is outside the board');
-      expect(board.receiveAttack(10, 0)).toThrow('Attack is outside the board');
-      expect(board.receiveAttack(0, 10)).toThrow('Attack is outside the board');
+      expect(() => board.receiveAttack(0, -1)).toThrow('You can not attack outside the board!');
+      expect(() => board.receiveAttack(10, 0)).toThrow('You can not attack outside the board!');
+      expect(() => board.receiveAttack(0, 10)).toThrow('You can not attack outside the board!');
     });
 
     test('prevents attacking the same spot twice', () => {
@@ -106,7 +109,7 @@ describe('Board', () => {
       const ship = new Ship('Carrier');
       board.placeShip(ship, 0, 0, 'horizontal');
       board.receiveAttack(0, 0);
-      expect(board.receiveAttack(0, 0)).toThrow('Attack already recorded');
+      expect(() => board.receiveAttack(0, 0)).toThrow('You can not attack the same spot!');
     });
   });
 
