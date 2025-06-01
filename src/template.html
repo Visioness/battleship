@@ -42,7 +42,10 @@
         <button type="submit">Start Game</button>
       </form>
 
-      <div class="fleet-container hidden"></div>
+      <div class="fleet-container hidden">
+        <h3 class="fleet-title">Fleet</h3>
+        <div class="fleet"></div>
+      </div>
 
       <div class="game-container hidden" id="game-container">
         <div class="player" id="player-one">
@@ -54,6 +57,19 @@
           <div class="game-board"></div>
         </div>
       </div>
+
+      <button class="change-direction hidden" type="button">
+        <img
+          width="40"
+          height="40"
+          class="direction-icon"
+          src="./assets/images/swap-direction.svg"
+          alt="Direction"
+          data-direction="horizontal"
+        />
+        <span class="direction-text">Horizontal</span>
+      </button>
+      <button class="start-game hidden" type="button">Start Game</button>
     </main>
 
     <footer>

@@ -54,7 +54,8 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 20%;
+  margin-bottom: 7rem;
 }
 
 .player {
@@ -73,10 +74,41 @@ main {
 }
 
 .cell {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border: 1px solid var(--high-transparent);
   background: var(--primary-color);
+  overflow: visible;
+}
+
+.cell.ship-part .ship {
+  pointer-events: none;
+}
+
+.cell.ship-part .view {
+  opacity: 0.4;
+  transform-origin: bottom left;
+}
+
+.cell.ship-part .name {
+  opacity: 0.4;
+  transform-origin: bottom left;
+}
+
+.cell.ship-part .ship[data-direction='vertical'] > .view {
+  transform: translate(4%, -100%) rotate(90deg);
+}
+
+.cell.ship-part .ship[data-direction='vertical'] > .name {
+  transform: translate(4%, -100%) rotate(90deg);
+}
+
+.cell.valid {
+  background: rgba(62, 128, 62, 0.288);
+}
+
+.cell.invalid {
+  background: rgba(187, 71, 71, 0.26);
 }
 
 .cell:hover {
@@ -86,32 +118,130 @@ main {
 .fleet-container {
   position: absolute;
   bottom: 0;
+}
+
+.fleet {
   display: flex;
   align-items: center;
   gap: 2rem;
   padding: 1rem;
-  border: 2px solid var(--low-transparent);
   border-radius: 0.5rem;
 }
 
-.fleet-item {
-  position: relative;
+.fleet-container .fleet-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--high-transparent);
 }
 
-.fleet-item-name {
+.ship {
+  position: relative;
+  cursor: grab;
+}
+
+.ship.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.ship .name {
   position: absolute;
-  bottom: -0.3rem;
+  bottom: 0;
   left: 0;
   right: 0;
+  transform: translate(50%, 10%);
   font-size: 0.8rem;
   font-weight: bold;
+  opacity: 0.8;
+  z-index: 2;
 }
 
-.fleet-item > img {
-  min-width: 120px;
-  min-height: 50px;
+.fleet .ship .name {
+  top: 0;
+  transform: none;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+}
+
+.ship > .view {
   border-radius: 0.5rem;
+  object-fit: cover;
+  height: 40px;
+  opacity: 0.8;
+}
+
+.ship[data-type='cruiser'] > .view {
+  width: 100px;
+}
+
+.ship[data-type='destroyer'] > .view {
+  width: 150px;
+}
+
+.ship[data-type='submarine'] > .view {
+  width: 150px;
+}
+
+.ship[data-type='battleship'] > .view {
+  width: 200px;
+}
+
+.ship[data-type='carrier'] > .view {
+  width: 250px;
+}
+
+.start-game {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--high-transparent);
   border: 1px solid var(--low-transparent);
+  color: var(--text-color);
+}
+
+.change-direction {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+  transition: filter 0.2s ease;
+}
+
+.change-direction:hover {
+  filter: brightness(1.5);
+}
+
+.direction-icon {
+  transform-origin: center;
+  transform: scale(2, 1.5);
+  transition: transform 0.1s ease;
+}
+
+.direction-icon[data-direction='vertical'] {
+  transform: scale(1.5, 2) rotate(90deg);
+}
+
+.direction-text {
+  color: var(--text-color);
+  font-size: 1.3rem;
+  font-weight: bold;
+  opacity: 0.8;
 }
 
 .hidden {

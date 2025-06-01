@@ -3,7 +3,7 @@ const shipSizes = {
   Battleship: 4,
   Destroyer: 3,
   Submarine: 3,
-  'Patrol Boat': 2,
+  Cruiser: 2,
 };
 
 class Ship {

@@ -12,12 +12,15 @@ class Board {
   placeShip(ship, row, column, direction) {
     if (
       row < 0 ||
-      row + ship.length > this.size ||
       column < 0 ||
-      column + ship.length > this.size ||
+      row >= this.size ||
+      column >= this.size ||
+      (direction === 'vertical' && row + ship.length > this.size) ||
+      (direction === 'horizontal' && column + ship.length > this.size) ||
       !this.isEmpty(ship, row, column, direction)
-    )
+    ) {
       return false;
+    }
 
     if (direction === 'horizontal') {
       for (let i = column; i < column + ship.length; i++) {
@@ -39,12 +42,11 @@ class Board {
       for (let i = column; i < column + ship.length; i++) {
         if (this.grid[row][i] !== null) return false;
       }
+    } else {
+      for (let i = row; i < row + ship.length; i++) {
+        if (this.grid[i][column] !== null) return false;
+      }
     }
-
-    for (let i = row; i < row + ship.length; i++) {
-      if (this.grid[i][column] !== null) return false;
-    }
-
     return true;
   }
 

@@ -7,6 +7,7 @@ const Player = require('./modules/player');
 
 const view = new View();
 const game = new Game();
+const board = new Board();
 
 const gameTypeCallback = (gameType) => {
   game.setGameType(gameType);
@@ -17,9 +18,15 @@ const boardSizeCallback = (boardSize) => {
 };
 
 const playerNamesCallback = (playerOneName, playerTwoName) => {
-  game.setup(playerOneName, playerTwoName);
-  view.setup(game.boardSize, playerOneName, playerTwoName);
-  view.drawFleet(game.players[0].fleet);
+  initalizeGame(playerOneName, playerTwoName);
 };
 
 view.handleFormEvents(gameTypeCallback, boardSizeCallback, playerNamesCallback);
+
+const initalizeGame = (playerOneName, playerTwoName) => {
+  game.setup(playerOneName, playerTwoName);
+  view.setup(game.boardSize, playerOneName, playerTwoName);
+  view.drawFleet(game.players[0].fleet);
+  view.handleDragEvents(game.players[0]);
+  view.handleRotation();
+};

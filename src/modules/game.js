@@ -6,7 +6,7 @@ class Game {
   constructor() {
     this.players = [];
     this.over = false;
-    this.currentPlayer = null;
+    this.winner = null;
   }
 
   setup(playerOneName, playerTwoName) {
@@ -32,7 +32,7 @@ class Game {
       new Ship('Battleship'),
       new Ship('Destroyer'),
       new Ship('Submarine'),
-      new Ship('Patrol Boat'),
+      new Ship('Cruiser'),
     ];
   }
 
