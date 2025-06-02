@@ -126,7 +126,15 @@
           <legend>Board Configuration</legend>
           <div class="form-group">
             <label for="board-size">Board Size (7-15)</label>
-            <input type="number" name="board-size" id="board-size" value="10" min="7" max="15" />
+            <input
+              class="number-input"
+              type="number"
+              name="board-size"
+              id="board-size"
+              value="10"
+              min="7"
+              max="15"
+            />
           </div>
         </fieldset>
         <button type="submit">Continue</button>
@@ -138,6 +146,7 @@
           <div class="form-group">
             <label for="player-one-name">Your Name</label>
             <input
+              class="name-input"
               type="text"
               name="player-one-name"
               id="player-one-name"
