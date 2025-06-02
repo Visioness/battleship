@@ -919,8 +919,8 @@ input[type='radio']:checked {
   box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
 }
 
-input[type='text'],
-input[type='number'] {
+.name-input,
+.number-input {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid var(--low-transparent);
   border-radius: 0.5rem;
@@ -934,8 +934,8 @@ input[type='number'] {
   margin: 0 auto;
 }
 
-input[type='text']:focus,
-input[type='number']:focus {
+.name-input:focus,
+.number-input:focus {
   outline: none;
   border-color: #f39c12;
   background: rgba(255, 255, 255, 0.15);
@@ -944,7 +944,7 @@ input[type='number']:focus {
   font-size: 1.1rem;
 }
 
-input[type='text']::placeholder {
+.name-input::placeholder {
   color: rgba(204, 204, 204, 0.6);
 }
 
@@ -1536,4 +1536,4 @@ button[type='submit']:active {
 /* End of Desktop-Only Styles */
 
 
-/*# sourceMappingURL=main.7a51c598decab4861046.css.map*/
+/*# sourceMappingURL=main.8a23ec8595b434a908ad.css.map*/
