@@ -10,36 +10,142 @@
       <h1>Battleship</h1>
     </header>
 
+    <!-- Welcome Dialog -->
+    <div id="welcome-dialog" class="dialog-overlay hidden">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h2>🚢 Welcome to Battleship!</h2>
+          <button class="dialog-close" id="close-welcome">&times;</button>
+        </div>
+        <div class="dialog-body">
+          <div class="tutorial-section">
+            <h3>🎯 How to Play</h3>
+            <ul>
+              <li>
+                <strong>Setup Phase:</strong>
+                Drag and drop your ships onto your board
+              </li>
+              <li>
+                <strong>Ship Placement:</strong>
+                Ships cannot touch each other (including diagonally)
+              </li>
+              <li>
+                <strong>Rotation:</strong>
+                Use the rotation button to change ship orientation
+              </li>
+              <li>
+                <strong>Battle Phase:</strong>
+                Click on enemy grid cells to attack
+              </li>
+              <li>
+                <strong>Victory:</strong>
+                Sink all enemy ships to win!
+              </li>
+            </ul>
+          </div>
+
+          <div class="tutorial-section">
+            <h3>🎮 Controls</h3>
+            <ul>
+              <li>
+                <strong>Drag & Drop:</strong>
+                Place ships on your board
+              </li>
+              <li>
+                <strong>Rotation Button:</strong>
+                Toggle between horizontal/vertical placement
+              </li>
+              <li>
+                <strong>Click to Attack:</strong>
+                Target enemy positions during battle
+              </li>
+            </ul>
+          </div>
+
+          <div class="tutorial-section">
+            <h3>📊 Visual Indicators</h3>
+            <ul>
+              <li>
+                <span class="indicator hit">💥</span>
+                <strong>Hit:</strong>
+                You've struck an enemy ship
+              </li>
+              <li>
+                <span class="indicator miss">💧</span>
+                <strong>Miss:</strong>
+                Shot landed in water
+              </li>
+              <li>
+                <span class="indicator sunk">💀</span>
+                <strong>Sunk:</strong>
+                Entire ship destroyed
+              </li>
+              <li>
+                <span class="indicator valid">✅</span>
+                <strong>Valid placement</strong>
+                during ship setup
+              </li>
+              <li>
+                <span class="indicator invalid">❌</span>
+                <strong>Invalid placement</strong>
+                during ship setup
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="dialog-button primary" id="start-game">Start Playing!</button>
+          <button class="dialog-button secondary" id="skip-tutorial">Skip Tutorial</button>
+        </div>
+      </div>
+    </div>
+
     <main>
       <form id="game-type-form">
         <fieldset>
-          <legend>Game Type</legend>
-          <label for="single">Against Computer</label>
-          <input type="radio" name="game-type" id="single" value="single" checked />
-          <label for="multi">Two Players</label>
-          <input type="radio" name="game-type" id="multi" value="multi" />
+          <legend>Choose Game Mode</legend>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="game-type" id="single" value="single" checked />
+              <label for="single">Against AI</label>
+            </div>
+            <div class="radio-option disabled">
+              <input type="radio" name="game-type" id="multi" value="multi" disabled />
+              <label for="multi" class="disabled-label">
+                Two Players
+                <span class="coming-soon">too soon</span>
+              </label>
+            </div>
+          </div>
         </fieldset>
-        <button type="submit">Next</button>
+        <button type="submit">Continue</button>
       </form>
 
       <form class="hidden" id="board-size-form">
         <fieldset>
-          <legend>Board Size</legend>
-          <label for="board-size">Board Size</label>
-          <input type="number" name="board-size" id="board-size" value="10" min="7" max="15" />
+          <legend>Board Configuration</legend>
+          <div class="form-group">
+            <label for="board-size">Board Size (7-15)</label>
+            <input type="number" name="board-size" id="board-size" value="10" min="7" max="15" />
+          </div>
         </fieldset>
-        <button type="submit">Next</button>
+        <button type="submit">Continue</button>
       </form>
 
       <form class="hidden" id="player-names-form">
         <fieldset>
-          <legend>Player Names</legend>
-          <label for="player-one-name">Player One</label>
-          <input type="text" name="player-one-name" id="player-one-name" />
-          <label for="player-two-name">Player Two</label>
-          <input type="text" name="player-two-name" id="player-two-name" />
+          <legend>Player Setup</legend>
+          <div class="form-group">
+            <label for="player-one-name">Your Name</label>
+            <input
+              type="text"
+              name="player-one-name"
+              id="player-one-name"
+              placeholder="Enter your name (optional)"
+            />
+          </div>
         </fieldset>
-        <button type="submit">Start Game</button>
+        <button type="submit">Start Battleship</button>
       </form>
 
       <div class="fleet-container hidden">
@@ -69,7 +175,23 @@
         />
         <span class="direction-text">Horizontal</span>
       </button>
-      <button class="start-game hidden" type="button">Start Game</button>
+
+      <button class="help-button" type="button" id="help-button" title="Show Tutorial">
+        <span class="help-icon">❓</span>
+        <span class="help-text">Help</span>
+      </button>
+
+      <!-- Turn Indicator and Notifications -->
+      <div class="turn-indicator hidden" id="turn-indicator">
+        <div class="turn-content">
+          <span class="turn-icon">🎯</span>
+          <span class="turn-text" id="turn-text">Your Turn</span>
+        </div>
+      </div>
+
+      <div class="notification-container" id="notification-container">
+        <!-- Notifications will be dynamically added here -->
+      </div>
     </main>
 
     <footer>

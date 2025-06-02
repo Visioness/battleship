@@ -14,7 +14,7 @@ describe('Ship', () => {
     const ship4 = new Ship('Submarine');
     expect(ship4.length).toBe(3);
 
-    const ship5 = new Ship('Patrol Boat');
+    const ship5 = new Ship('Cruiser');
     expect(ship5.length).toBe(2);
   });
 
@@ -31,7 +31,7 @@ describe('Ship', () => {
     const ship4 = new Ship('Submarine');
     expect(ship4.hitCount).toBe(0);
 
-    const ship5 = new Ship('Patrol Boat');
+    const ship5 = new Ship('Cruiser');
     expect(ship5.hitCount).toBe(0);
   });
 
@@ -50,7 +50,7 @@ describe('Ship', () => {
     ship.hit();
     expect(ship.hitCount).toBe(5);
 
-    const ship2 = new Ship('Patrol Boat');
+    const ship2 = new Ship('Cruiser');
     ship2.hit();
     expect(ship2.hitCount).toBe(1);
     ship2.hit();
@@ -68,7 +68,7 @@ describe('Ship', () => {
     ship.hit();
     expect(ship.isSunk()).toBe(true);
 
-    const ship2 = new Ship('Patrol Boat');
+    const ship2 = new Ship('Cruiser');
     ship2.hit();
     expect(ship2.isSunk()).toBe(false);
     ship2.hit();

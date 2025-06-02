@@ -1,3 +1,9 @@
+/**
+ * User Interface Management System
+ * Handles all DOM manipulation, visual feedback, and user interactions
+ * Implements the View component of the MVC pattern for the battleship game
+ */
+
 const cruiser = require('../assets/images/cruiser.svg');
 const destroyer = require('../assets/images/destroyer.svg');
 const submarine = require('../assets/images/submarine.svg');
@@ -5,6 +11,9 @@ const battleship = require('../assets/images/battleship.svg');
 const carrier = require('../assets/images/carrier.svg');
 
 class View {
+  /**
+   * Initializes the view with DOM element references and ship image mapping
+   */
   constructor() {
     this.forms = {
       gameType: document.getElementById('game-type-form'),
@@ -27,21 +36,219 @@ class View {
       playerOne: this.players.playerOne.querySelector('.player-name'),
       playerTwo: this.players.playerTwo.querySelector('.player-name'),
     };
+
+    // Welcome dialog elements
+    this.welcomeDialog = document.getElementById('welcome-dialog');
+    this.initializeWelcomeDialog();
+
+    // Turn indicator and notification system
+    this.turnIndicator = document.getElementById('turn-indicator');
+    this.turnText = document.getElementById('turn-text');
+    this.notificationContainer = document.getElementById('notification-container');
   }
 
-  setup(boardSize, playerOneName, playerTwoName) {
-    this.drawGameBoards(boardSize, playerOneName, playerTwoName);
+  /**
+   * Initializes welcome dialog functionality and checks for first-time users
+   * Sets up event handlers and manages localStorage for user preferences
+   */
+  initializeWelcomeDialog() {
+    if (!this.welcomeDialog) return;
+
+    // Check if user is visiting for the first time
+    const hasSeenWelcome = localStorage.getItem('battleship-welcome-seen');
+
+    if (!hasSeenWelcome) {
+      this.showWelcomeDialog();
+    }
+
+    // Set up event handlers
+    const closeButton = document.getElementById('close-welcome');
+    const startButton = document.getElementById('start-game');
+    const skipButton = document.getElementById('skip-tutorial');
+
+    if (closeButton) {
+      closeButton.addEventListener('click', () => this.hideWelcomeDialog());
+    }
+
+    if (startButton) {
+      startButton.addEventListener('click', () => {
+        this.hideWelcomeDialog();
+        this.markWelcomeSeen();
+      });
+    }
+
+    if (skipButton) {
+      skipButton.addEventListener('click', () => {
+        this.hideWelcomeDialog();
+        this.markWelcomeSeen();
+      });
+    }
+
+    // Close dialog when clicking outside
+    this.welcomeDialog.addEventListener('click', (event) => {
+      if (event.target === this.welcomeDialog) {
+        this.hideWelcomeDialog();
+        this.markWelcomeSeen();
+      }
+    });
+
+    // Handle escape key
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !this.welcomeDialog.classList.contains('hidden')) {
+        this.hideWelcomeDialog();
+        this.markWelcomeSeen();
+      }
+    });
+
+    // Set up help button
+    const helpButton = document.getElementById('help-button');
+    if (helpButton) {
+      helpButton.addEventListener('click', () => {
+        this.showWelcomeDialog();
+      });
+    }
   }
 
+  /**
+   * Shows the welcome dialog with smooth animation
+   */
+  showWelcomeDialog() {
+    if (this.welcomeDialog) {
+      this.welcomeDialog.classList.remove('hidden');
+    }
+  }
+
+  /**
+   * Hides the welcome dialog with smooth animation
+   */
+  hideWelcomeDialog() {
+    if (this.welcomeDialog) {
+      this.welcomeDialog.classList.add('hidden');
+    }
+  }
+
+  /**
+   * Marks that the user has seen the welcome dialog
+   * Stores preference in localStorage to avoid showing again
+   */
+  markWelcomeSeen() {
+    localStorage.setItem('battleship-welcome-seen', 'true');
+  }
+
+  /**
+   * Forces the welcome dialog to show again (useful for testing or help button)
+   */
+  resetWelcomeDialog() {
+    localStorage.removeItem('battleship-welcome-seen');
+    this.showWelcomeDialog();
+  }
+
+  /**
+   * Generates standardized cell ID for DOM elements
+   * @param {string} playerIndex - Player identifier ('One' or 'Two')
+   * @param {number} row - Row coordinate
+   * @param {number} column - Column coordinate
+   * @returns {string} Formatted cell ID
+   */
+  getCellId(playerIndex, row, column) {
+    return `player-${playerIndex.toLowerCase()}-${row},${column}`;
+  }
+
+  /**
+   * Extracts ship direction and size data from DOM element
+   * @param {Element} shipElement - Ship DOM element
+   * @returns {Object} Object containing direction, length, and boardSize
+   */
+  getShipData(shipElement) {
+    return {
+      isHorizontal: shipElement.dataset.direction === 'horizontal',
+      length: Number(shipElement.dataset.length),
+      boardSize: Number(this.boards.playerOne.dataset.size),
+    };
+  }
+
+  /**
+   * Calculates all cells a ship would occupy in the UI
+   * @param {number} row - Starting row coordinate
+   * @param {number} column - Starting column coordinate
+   * @param {number} length - Ship length
+   * @param {boolean} isHorizontal - Ship orientation
+   * @param {number} boardSize - Board dimensions for boundary checking
+   * @returns {Array} Array of {row, column} objects representing ship cells
+   */
+  getShipCells(row, column, length, isHorizontal, boardSize = null) {
+    const cells = [];
+    for (let i = 0; i < length; i++) {
+      const cellRow = isHorizontal ? row : row + i;
+      const cellCol = isHorizontal ? column + i : column;
+
+      // Only add cells within bounds if boardSize is provided
+      if (
+        !boardSize ||
+        (cellRow >= 0 && cellRow < boardSize && cellCol >= 0 && cellCol < boardSize)
+      ) {
+        cells.push({ row: cellRow, column: cellCol });
+      }
+    }
+    return cells;
+  }
+
+  /**
+   * Validates if coordinates are within board boundaries
+   * @param {number} row - Row coordinate
+   * @param {number} column - Column coordinate
+   * @param {number} boardSize - Board dimensions
+   * @returns {boolean} True if coordinates are valid
+   */
+  isValidCoordinate(row, column, boardSize) {
+    return row >= 0 && row < boardSize && column >= 0 && column < boardSize;
+  }
+
+  /**
+   * Applies or removes CSS class to ship cells
+   * @param {number} row - Starting row coordinate
+   * @param {number} column - Starting column coordinate
+   * @param {Element} shipElement - Ship DOM element
+   * @param {string} className - CSS class to apply/remove
+   * @param {boolean} add - True to add class, false to remove
+   */
+  modifyShipCells(row, column, shipElement, className, add = true) {
+    const { isHorizontal, length, boardSize } = this.getShipData(shipElement);
+    const cells = this.getShipCells(row, column, length, isHorizontal, boardSize);
+
+    cells.forEach((cell) => {
+      const cellElement = document.getElementById(this.getCellId('One', cell.row, cell.column));
+      if (cellElement) {
+        if (add) {
+          cellElement.classList.add(className);
+        } else {
+          cellElement.classList.remove(className);
+        }
+      }
+    });
+  }
+
+  /**
+   * Legacy method for form event handling (maintained for compatibility)
+   * @param {Function} gameTypeCallback - Game type selection handler
+   * @param {Function} boardSizeCallback - Board size selection handler
+   * @param {Function} playerNamesCallback - Player names configuration handler
+   */
   handleFormEvents(gameTypeCallback, boardSizeCallback, playerNamesCallback) {
     this.createFormHandlers(gameTypeCallback, boardSizeCallback, playerNamesCallback);
   }
 
+  /**
+   * Sets up form submission handlers for game configuration
+   * Manages progressive form display and data collection
+   * @param {Function} gameTypeCallback - Handler for game type selection
+   * @param {Function} boardSizeCallback - Handler for board size selection
+   * @param {Function} playerNamesCallback - Handler for player names input
+   */
   createFormHandlers(gameTypeCallback, boardSizeCallback, playerNamesCallback) {
     let gameType;
     let boardSize;
     let playerOneName;
-    let playerTwoName;
 
     this.forms.gameType.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -49,7 +256,6 @@ class View {
       this.forms.gameType.classList.toggle('hidden');
       this.forms.boardSize.classList.toggle('hidden');
 
-      // Pass the game type
       gameType = this.forms.gameType.elements['game-type'].value;
       gameTypeCallback(gameType);
     });
@@ -60,7 +266,6 @@ class View {
       this.forms.boardSize.classList.toggle('hidden');
       this.forms.playerNames.classList.toggle('hidden');
 
-      // Pass the board size
       boardSize = Number(this.forms.boardSize.elements['board-size'].value);
       boardSizeCallback(boardSize);
     });
@@ -73,14 +278,19 @@ class View {
       this.fleetContainer.classList.toggle('hidden');
       this.main.querySelector('.change-direction').classList.toggle('hidden');
 
-      // Pass the player names
       playerOneName = this.forms.playerNames.elements['player-one-name'].value;
-      playerTwoName =
-        gameType === 'single' ? '' : this.forms.playerNames.elements['player-two-name'].value;
-      playerNamesCallback(playerOneName, playerTwoName);
+      // Since we only support single player mode now, player two is always AI
+      playerNamesCallback(playerOneName, '');
     });
   }
 
+  /**
+   * Generates the visual game boards with proper cell identification
+   * Creates interactive grid cells for both player boards
+   * @param {number} boardSize - Dimensions of the square game board
+   * @param {string} playerOneName - Display name for first player
+   * @param {string} playerTwoName - Display name for second player (or AI)
+   */
   drawGameBoards(boardSize, playerOneName, playerTwoName) {
     this.names.playerOne.textContent = playerOneName.toUpperCase() || 'PLAYER ONE';
     this.names.playerTwo.textContent = playerTwoName.toUpperCase() || 'AI';
@@ -116,6 +326,11 @@ class View {
     });
   }
 
+  /**
+   * Renders the ship fleet interface for player ship placement
+   * Creates draggable ship elements with visual representations
+   * @param {Ship[]} fleet - Array of ship objects to display
+   */
   drawFleet(fleet) {
     this.fleetElement.innerHTML = '';
     const shipImages = {
@@ -143,8 +358,12 @@ class View {
     });
   }
 
+  /**
+   * Implements comprehensive drag-and-drop functionality for ship placement
+   * Handles visual feedback, validation, and automatic fleet updates
+   * @param {Player} player - Player object containing fleet and board references
+   */
   handleDragEvents(player) {
-    // Assuming the board is the player's board and the game is single player
     const playerShips = player.fleet;
     const playerBoard = player.board;
     let draggedShip = null;
@@ -156,15 +375,13 @@ class View {
         draggedShip = target;
         draggedShip.classList.add('dragging');
 
-        // Create an empty element to use as drag image
+        // Create invisible drag image for custom visual feedback
         const emptyElement = document.createElement('div');
         emptyElement.style.opacity = '0';
         document.body.appendChild(emptyElement);
 
-        // Set the drag image to the empty element
         event.dataTransfer.setDragImage(emptyElement, 0, 0);
 
-        // Clean up
         requestAnimationFrame(() => {
           document.body.removeChild(emptyElement);
         });
@@ -198,7 +415,7 @@ class View {
             (ship) => ship.name.toLowerCase() === draggedShip.dataset.type
           );
 
-          // Place the ship on logic side
+          // Update game logic
           playerBoard.placeShip(
             ship,
             Number(cell.dataset.row),
@@ -208,28 +425,28 @@ class View {
 
           player.fleet.splice(player.fleet.indexOf(ship), 1);
 
-          // Place the ship on view side
+          // Update visual representation using utility function
+          const { isHorizontal, length } = this.getShipData(draggedShip);
           const cellRow = Number(cell.dataset.row);
           const cellColumn = Number(cell.dataset.column);
-          for (let i = 0; i < Number(draggedShip.dataset.length); i++) {
-            if (draggedShip.dataset.direction === 'horizontal') {
-              const cellToMark = document.getElementById(`player-one-${cellRow},${cellColumn + i}`);
-              cellToMark.classList.add('ship-part');
-            } else {
-              const cellToMark = document.getElementById(`player-one-${cellRow + i},${cellColumn}`);
-              cellToMark.classList.add('ship-part');
+          const cells = this.getShipCells(cellRow, cellColumn, length, isHorizontal);
+
+          cells.forEach((cell) => {
+            const cellElement = document.getElementById(
+              this.getCellId('One', cell.row, cell.column)
+            );
+            if (cellElement) {
+              cellElement.classList.add('ship-part');
             }
-          }
+          });
 
           this.fleetElement.removeChild(draggedShip);
           cell.appendChild(draggedShip);
 
           if (player.fleet.length === 0) {
-            document.querySelector('.start-game').classList.remove('hidden');
             this.fleetContainer.classList.add('hidden');
           }
 
-          // Clear the position preview
           this.clearPosition(dropZone, draggedShip);
           draggedShip.classList.remove('dragging');
           dropZone = null;
@@ -249,35 +466,55 @@ class View {
     });
   }
 
+  /**
+   * Validates whether a ship can be placed at the specified position
+   * Checks boundary constraints and ship spacing requirements
+   * @param {Element} cell - Target cell DOM element
+   * @param {Element} draggedShip - Ship element being placed
+   * @returns {boolean} True if position is valid for ship placement
+   */
   isPositionAvailable(cell, draggedShip) {
-    const shipLength = Number(draggedShip.dataset.length);
-    const isHorizontal = draggedShip.dataset.direction === 'horizontal';
-    const boardSize = Number(this.boards.playerOne.dataset.size);
-
+    const { isHorizontal, length, boardSize } = this.getShipData(draggedShip);
     const cellRow = Number(cell.dataset.row);
     const cellColumn = Number(cell.dataset.column);
 
+    // Validate board boundaries
     if (
-      cellRow < 0 ||
-      cellColumn < 0 ||
-      cellRow >= boardSize ||
-      cellColumn >= boardSize ||
-      (!isHorizontal && cellRow + shipLength > boardSize) ||
-      (isHorizontal && cellColumn + shipLength > boardSize)
+      !this.isValidCoordinate(cellRow, cellColumn, boardSize) ||
+      (!isHorizontal && cellRow + length > boardSize) ||
+      (isHorizontal && cellColumn + length > boardSize)
     ) {
       return false;
     }
 
-    for (let i = 0; i < shipLength; i++) {
-      if (isHorizontal) {
-        const cellToCheck = document.getElementById(`player-one-${cellRow},${cellColumn + i}`);
-        if (cellToCheck.classList.contains('ship-part')) {
-          return false;
-        }
-      } else {
-        const cellToCheck = document.getElementById(`player-one-${cellRow + i},${cellColumn}`);
-        if (cellToCheck.classList.contains('ship-part')) {
-          return false;
+    // Calculate ship cell positions and check for conflicts
+    const shipCells = this.getShipCells(cellRow, cellColumn, length, isHorizontal);
+
+    // Check for occupied cells
+    for (const shipCell of shipCells) {
+      const cellToCheck = document.getElementById(
+        this.getCellId('One', shipCell.row, shipCell.column)
+      );
+      if (cellToCheck && cellToCheck.classList.contains('ship-part')) {
+        return false;
+      }
+    }
+
+    // Enforce ship spacing rules (8-directional)
+    for (const shipCell of shipCells) {
+      for (let deltaRow = -1; deltaRow <= 1; deltaRow++) {
+        for (let deltaCol = -1; deltaCol <= 1; deltaCol++) {
+          if (deltaRow === 0 && deltaCol === 0) continue;
+
+          const checkRow = shipCell.row + deltaRow;
+          const checkCol = shipCell.column + deltaCol;
+
+          if (this.isValidCoordinate(checkRow, checkCol, boardSize)) {
+            const cellToCheck = document.getElementById(this.getCellId('One', checkRow, checkCol));
+            if (cellToCheck && cellToCheck.classList.contains('ship-part')) {
+              return false;
+            }
+          }
         }
       }
     }
@@ -285,52 +522,33 @@ class View {
     return true;
   }
 
+  /**
+   * Displays visual preview of ship placement during drag operations
+   * @param {Element} cell - Target cell for ship placement
+   * @param {Element} draggedShip - Ship being dragged
+   * @param {string} className - CSS class for visual feedback ('valid' or 'invalid')
+   */
   showPosition(cell, draggedShip, className) {
-    const shipLength = Number(draggedShip.dataset.length);
-    const isHorizontal = draggedShip.dataset.direction === 'horizontal';
-    const boardSize = Number(this.boards.playerOne.dataset.size);
-
     const cellRow = Number(cell.dataset.row);
     const cellColumn = Number(cell.dataset.column);
-
-    for (let i = 0; i < shipLength; i++) {
-      if (isHorizontal) {
-        if (cellColumn + i < boardSize) {
-          const cellToMark = document.getElementById(`player-one-${cellRow},${cellColumn + i}`);
-          cellToMark.classList.add(className);
-        }
-      } else {
-        if (cellRow + i < boardSize) {
-          const cellToMark = document.getElementById(`player-one-${cellRow + i},${cellColumn}`);
-          cellToMark.classList.add(className);
-        }
-      }
-    }
+    this.modifyShipCells(cellRow, cellColumn, draggedShip, className, true);
   }
 
+  /**
+   * Removes visual preview indicators from board cells
+   * @param {Element} cell - Base cell for clearing preview
+   * @param {Element} draggedShip - Ship element being dragged
+   */
   clearPosition(cell, draggedShip) {
-    const shipLength = Number(draggedShip.dataset.length);
-    const isHorizontal = draggedShip.dataset.direction === 'horizontal';
-    const boardSize = Number(this.boards.playerOne.dataset.size);
-
     const cellRow = Number(cell.dataset.row);
     const cellColumn = Number(cell.dataset.column);
-
-    for (let i = 0; i < shipLength; i++) {
-      if (isHorizontal) {
-        if (cellColumn + i < boardSize) {
-          const cellToClear = document.getElementById(`player-one-${cellRow},${cellColumn + i}`);
-          cellToClear.classList.remove('valid', 'invalid');
-        }
-      } else {
-        if (cellRow + i < boardSize) {
-          const cellToClear = document.getElementById(`player-one-${cellRow + i},${cellColumn}`);
-          cellToClear.classList.remove('valid', 'invalid');
-        }
-      }
-    }
+    this.modifyShipCells(cellRow, cellColumn, draggedShip, 'valid', false);
+    this.modifyShipCells(cellRow, cellColumn, draggedShip, 'invalid', false);
   }
 
+  /**
+   * Sets up ship rotation control functionality
+   */
   handleRotation() {
     const directionButton = this.main.querySelector('.change-direction');
     directionButton.addEventListener('click', () => {
@@ -338,6 +556,11 @@ class View {
     });
   }
 
+  /**
+   * Toggles ship orientation between horizontal and vertical
+   * Updates all available ships and UI indicators
+   * @param {Element} directionButton - Rotation button element
+   */
   changeDirection(directionButton) {
     const ships = this.fleetElement.querySelectorAll('.ship');
     const direction = directionButton.querySelector('.direction-icon').dataset.direction;
@@ -353,6 +576,224 @@ class View {
     ships.forEach((ship) => {
       ship.dataset.direction = directionButton.querySelector('.direction-icon').dataset.direction;
     });
+  }
+
+  /**
+   * Sets up click event handling for enemy board attacks
+   * @param {Function} playTurnCallback - Handler function for processing attacks
+   */
+  handleAttackEvents(playTurnCallback) {
+    this.boards.playerTwo.addEventListener('click', (event) => {
+      const cell = event.target.closest('.cell');
+      if (cell) {
+        playTurnCallback(Number(cell.dataset.row), Number(cell.dataset.column));
+      }
+    });
+  }
+
+  /**
+   * Renders visual feedback for attack results on game boards
+   * @param {string} playerIndex - Target board ('One' or 'Two')
+   * @param {Ship|string} result - Attack result (Ship object for hit, 'miss' for miss)
+   * @param {number} row - Target row coordinate
+   * @param {number} column - Target column coordinate
+   */
+  renderShot(playerIndex, result, row, column) {
+    const cell = document.getElementById(this.getCellId(playerIndex, row, column));
+
+    if (!cell) {
+      return; // Silent failure - cell not found
+    }
+
+    // Clear previous shot indicators
+    cell.classList.remove('miss', 'hit', 'shot');
+
+    // Apply appropriate visual feedback
+    if (result === 'miss') {
+      cell.classList.add('miss');
+    } else {
+      cell.classList.add('hit');
+    }
+    cell.classList.add('shot');
+  }
+
+  /**
+   * Displays warning messages for invalid actions
+   * @param {string} message - Warning message to display
+   */
+  renderWarning(message = 'Invalid move!') {
+    this.showNotification(message, 'warning', 2000);
+  }
+
+  /**
+   * Renders visual indication of destroyed ships with detailed graphics
+   * @param {Ship} ship - Destroyed ship object
+   * @param {string} playerIndex - Target board ('One' or 'Two')
+   */
+  renderSunkShip(ship, playerIndex) {
+    const row = ship.head.row;
+    const column = ship.head.column;
+
+    const shipImages = {
+      cruiser: cruiser,
+      destroyer: destroyer,
+      submarine: submarine,
+      battleship: battleship,
+      carrier: carrier,
+    };
+
+    // Calculate ship cells and mark as sunk
+    const isHorizontal = ship.direction === 'horizontal';
+    const cells = this.getShipCells(row, column, ship.length, isHorizontal);
+
+    cells.forEach((cell, index) => {
+      const cellElement = document.getElementById(
+        this.getCellId(playerIndex, cell.row, cell.column)
+      );
+
+      if (cellElement) {
+        cellElement.classList.add('sunk');
+        cellElement.classList.add('ship-part');
+
+        // Add ship visualization to head segment
+        if (index === 0) {
+          cellElement.innerHTML = '';
+
+          const shipElement = document.createElement('div');
+          shipElement.classList.add('ship', 'sunk-ship');
+          shipElement.dataset.length = ship.length;
+          shipElement.dataset.type = ship.name.toLowerCase();
+          shipElement.dataset.direction = ship.direction;
+
+          shipElement.innerHTML = `
+            <span class="name">${ship.name.toUpperCase()}</span>
+            <img class="view" width="100" height="50" src="${shipImages[ship.name.toLowerCase()]}" alt="${ship.name}">
+          `;
+
+          cellElement.appendChild(shipElement);
+        }
+      } else {
+        // Silent failure - cell not found
+      }
+    });
+  }
+
+  /**
+   * Displays game over screen with winner announcement and restart option
+   * @param {Player} winner - Winning player object
+   */
+  showGameOver(winner) {
+    this.main.innerHTML = '';
+    const gameOverMessage = document.createElement('div');
+    gameOverMessage.classList.add('game-over');
+    gameOverMessage.innerHTML = `
+      <h2>Game Over!</h2>
+      <p>${winner.name} wins!</p>
+      <button onclick="location.reload()">Play Again</button>
+    `;
+    this.main.appendChild(gameOverMessage);
+  }
+
+  /**
+   * Shows the turn indicator with player information
+   * @param {string} playerName - Name of the current player
+   * @param {boolean} isAI - Whether the current player is AI
+   */
+  showTurnIndicator(playerName, isAI = false) {
+    if (!this.turnIndicator || !this.turnText) return;
+
+    this.turnText.textContent = isAI ? 'AI Thinking...' : `${playerName}'s Turn`;
+
+    if (isAI) {
+      this.turnIndicator.classList.add('ai-turn');
+    } else {
+      this.turnIndicator.classList.remove('ai-turn');
+    }
+
+    this.turnIndicator.classList.remove('hidden');
+  }
+
+  /**
+   * Hides the turn indicator
+   */
+  hideTurnIndicator() {
+    if (this.turnIndicator) {
+      this.turnIndicator.classList.add('hidden');
+    }
+  }
+
+  /**
+   * Shows a notification to the user
+   * @param {string} message - The notification message
+   * @param {string} type - Notification type ('success', 'info', 'warning', 'error')
+   * @param {number} duration - Auto-hide duration in milliseconds (0 = manual close)
+   */
+  showNotification(message, type = 'info', duration = 3000) {
+    if (!this.notificationContainer) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+
+    const icons = {
+      success: '✅',
+      info: 'ℹ️',
+      warning: '⚠️',
+      error: '❌',
+    };
+
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-icon">${icons[type] || icons.info}</span>
+        <span class="notification-text">${message}</span>
+      </div>
+      <button class="notification-close">&times;</button>
+    `;
+
+    // Add close functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+      this.removeNotification(notification);
+    });
+
+    this.notificationContainer.appendChild(notification);
+
+    // Trigger show animation
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 10);
+
+    // Auto-hide if duration is set
+    if (duration > 0) {
+      setTimeout(() => {
+        this.removeNotification(notification);
+      }, duration);
+    }
+
+    return notification;
+  }
+
+  /**
+   * Removes a notification with smooth animation
+   * @param {Element} notification - The notification element to remove
+   */
+  removeNotification(notification) {
+    if (!notification) return;
+
+    notification.classList.remove('show');
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 700);
+  }
+
+  /**
+   * Clears all notifications
+   */
+  clearNotifications() {
+    if (this.notificationContainer) {
+      this.notificationContainer.innerHTML = '';
+    }
   }
 }
 

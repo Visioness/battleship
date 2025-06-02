@@ -1,32 +1,38 @@
+/**
+ * Battleship Game Entry Point
+ * Initializes the game controller and sets up callback handlers for game configuration
+ */
+
 require('./styles/style.css');
-const View = require('./modules/view');
-const Game = require('./modules/game');
-const Board = require('./modules/board');
-const Ship = require('./modules/ship');
-const Player = require('./modules/player');
+const Controller = require('./modules/controller');
 
-const view = new View();
-const game = new Game();
-const board = new Board();
+// Initialize the main game controller
+const controller = new Controller();
 
+/**
+ * Handles game type selection (single player vs multiplayer)
+ * @param {string} gameType - The selected game type ('single' or 'multiplayer')
+ */
 const gameTypeCallback = (gameType) => {
-  game.setGameType(gameType);
+  controller.setGameType(gameType);
 };
 
+/**
+ * Handles board size selection
+ * @param {number} boardSize - The selected board dimensions (e.g., 10 for 10x10)
+ */
 const boardSizeCallback = (boardSize) => {
-  game.setBoardSize(boardSize);
+  controller.setBoardSize(boardSize);
 };
 
+/**
+ * Handles player name configuration and game initialization
+ * @param {string} playerOneName - Name of the first player
+ * @param {string} playerTwoName - Name of the second player (empty for AI)
+ */
 const playerNamesCallback = (playerOneName, playerTwoName) => {
-  initalizeGame(playerOneName, playerTwoName);
+  controller.initializeGame(playerOneName, playerTwoName);
 };
 
-view.handleFormEvents(gameTypeCallback, boardSizeCallback, playerNamesCallback);
-
-const initalizeGame = (playerOneName, playerTwoName) => {
-  game.setup(playerOneName, playerTwoName);
-  view.setup(game.boardSize, playerOneName, playerTwoName);
-  view.drawFleet(game.players[0].fleet);
-  view.handleDragEvents(game.players[0]);
-  view.handleRotation();
-};
+// Configure controller with callback handlers and start the game setup
+controller.setup(gameTypeCallback, boardSizeCallback, playerNamesCallback);
